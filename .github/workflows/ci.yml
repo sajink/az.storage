@@ -16,11 +16,13 @@ jobs:
         dotnet-version: 5.0.x
     - name: Set Version
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+    - name: Show Version  
+      run: echo ${VERSION}
     - name: Restore
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release /p:Version=${VERSION} --no-restore
+      run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --configuration Release /p:Version=${VERSION} --no-build --verbosity normal
+      run: dotnet test --configuration Release --no-build --verbosity normal
     - name: Pack
-      run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output
+      run: dotnet pack --configuration Release --no-build --output

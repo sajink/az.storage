@@ -3,7 +3,7 @@
 This library has helper classes to easily access and manipulate Azure Storage Tables and Blobs
 
 ## Creating a cached Dictionary of <PartitionKey, <RowKey, Name>>
-```
+```csharp
 // Entities used for MapCache (i.e. Contacts below) should derive from BaseEntity
 MapCache.Context = new Az.Storage.AzureStorageContext("storage-connection-string");
 MapCache.Add<Contacts>();
@@ -14,7 +14,7 @@ foreach (var c in MapCache.Get<Contacts>().GetValue("Some-PartitionKey"))
 ```
 
 ## Creating a cached Dictionary of <PartitionKey, <RowKey, T>>
-```
+```csharp
 // Entities used for MapCache (i.e. Contacts below) should derive from TableEntity
 EntityCache.Context = new Az.Storage.AzureStorageContext("storage-connection-string");
 EntityCache.Add<Leads>();
@@ -27,14 +27,14 @@ foreach (var c in leads.GetValue("Some-PartitionKey"))
 ```
 
 ## Using AzDataServiceBase
-```
+```csharp
 public StoreController(AzDataServiceBase<Store> store) { }
 // ... action
 var stores = store.GetSet("partition");
 ```
 
 ## Creating an EntityService deriving from AzDataServiceBase
-```
+```csharp
 // Controller
 public StoreController(StoreService store) { }
 // ... action

@@ -3,8 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Sajin</Authors>
+    <Company>i47</Company>
+    <RepositoryUrl>https://github.com/sajink/az.storage</RepositoryUrl>
+    <PackageTags>azure storage, storage table, blob, easy access, helpers, cache</PackageTags>
+    <Description>This package defines a set of helpers and base implementations to make accessing and caching Azure Storage objects easy.</Description>
   </PropertyGroup>
 
   <ItemGroup>

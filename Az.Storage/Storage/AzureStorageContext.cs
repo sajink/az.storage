@@ -18,21 +18,21 @@
             _updateReplaces = updateReplaces;
         }
 
-        internal CloudTable Table(string name)
+        public CloudTable Table(string name)
         {
             var table = CloudStorageAccount.Parse(_connection).CreateCloudTableClient(new TableClientConfiguration()).GetTableReference(name);
             if (_createMissing) table.CreateIfNotExists();
             return table;
         }
 
-        internal BlobContainerClient Container(string name)
+        public BlobContainerClient Container(string name)
         {
             var container = new BlobServiceClient(_connection).GetBlobContainerClient(name);
             if (_createMissing) container.CreateIfNotExists();
             return container;
         }
 
-        internal BlobClient Blob(string path)
+        public BlobClient Blob(string path)
         {
             var split = path.IndexOf('/');
             if (split < 0) throw new ArgumentException("Path is invalid");

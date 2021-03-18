@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Az.Storage", "Az.Storage\Az.Storage.csproj", "{EEC285A6-28ED-424A-9A34-2E0D6FA6ADC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Az.Storage", "Az.Storage\Az.Storage.csproj", "{EEC285A6-28ED-424A-9A34-2E0D6FA6ADC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

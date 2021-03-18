@@ -7,6 +7,7 @@
     public interface IAzDataService<T> where T : ITableEntity, new()
     {
         Task<T> GetOne(string id);
+        Task<List<T>> GetSet(string id);
         Task<List<T>> GetAll();
         Task<bool> Create(T obj);
         Task<bool> Update(T obj);

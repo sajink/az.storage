@@ -5,7 +5,7 @@ This library has helper classes to easily access and manipulate Azure Storage Ta
 ## Creating a cached Dictionary of <PartitionKey, <RowKey, Name>>
 ```csharp
 // Entities used for MapCache (i.e. Contacts below) should derive from BaseEntity
-MapCache.Context = new Az.Storage.AzureStorageContext("storage-connection-string");
+MapCache.Context = new AzureStorageContext("storage-connection-string");
 MapCache.Add<Contacts>();
 foreach (var c in MapCache.Get<Contacts>().GetValue("Some-PartitionKey"))
 {
@@ -15,10 +15,10 @@ foreach (var c in MapCache.Get<Contacts>().GetValue("Some-PartitionKey"))
 
 ## Creating a cached Dictionary of <PartitionKey, <RowKey, T>>
 ```csharp
-// Entities used for MapCache (i.e. Contacts below) should derive from TableEntity
-EntityCache.Context = new Az.Storage.AzureStorageContext("storage-connection-string");
-EntityCache.Add<Leads>();
-EntityCache.Add<Org>();
+// Entities used for EntityCache (i.e. Leads/Org below) should derive from TableEntity
+EntityCache.Context = new AzureStorageContext("storage-connection-string");
+EntityCache.Add<Leads>(); // 30 minutes default cache
+EntityCache.Add<Org>(TimeSpan.FromMinutes(180));
 var leads = EntityCache.Get<Leads>();
 foreach (var c in leads.GetValue("Some-PartitionKey"))
 {

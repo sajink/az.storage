@@ -1,11 +1,11 @@
-﻿namespace Az.Storage.Maps
+﻿namespace Az.Storage.Cache
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
-    internal class DictionaryMap : IMap<Dictionary<string, string>>
+    internal class DictionaryMap : ICache<Dictionary<string, string>>
     {
         private Dictionary<string, Dictionary<string, string>> _map;
         private TimeSpan _refresh;

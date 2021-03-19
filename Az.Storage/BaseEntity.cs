@@ -1,4 +1,4 @@
-﻿namespace Az.Storage.Maps
+﻿namespace Az.Storage
 {
     using Microsoft.Azure.Cosmos.Table;
 

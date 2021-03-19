@@ -1,9 +1,9 @@
-﻿namespace Az.Storage.Maps
+﻿namespace Az.Storage.Cache
 {
     using System.Collections;
     using System.Collections.Generic;
 
-    public interface IMap<T> where T : IEnumerable
+    public interface ICache<T> where T : IEnumerable
     {
         Dictionary<string, T> GetAll();
 

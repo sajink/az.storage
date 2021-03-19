@@ -1,4 +1,4 @@
-﻿namespace Az.Storage.Maps
+﻿namespace Az.Storage.Cache
 {
     using Microsoft.Azure.Cosmos.Table;
     using System;
@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    internal class EntityMap<T> : IMap<Dictionary<string, T>> where T : TableEntity, new()
+    internal class EntityMap<T> : ICache<Dictionary<string, T>> where T : TableEntity, new()
     {
         private Dictionary<string, Dictionary<string, T>> _map;
         private TimeSpan _refresh;

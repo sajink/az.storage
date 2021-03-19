@@ -1,4 +1,4 @@
-﻿namespace Az.Storage.Maps
+﻿namespace Az.Storage.Cache
 {
     using System;
     using System.Collections.Generic;
@@ -17,6 +17,6 @@
             CacheStore.Add(typeof(T), new EntityMap<T>(Context, refresh));
         }
 
-        public static IMap<Dictionary<string, T>> Get<T>() => CacheStore[typeof(T)] as IMap<Dictionary<string, T>>;
+        public static ICache<Dictionary<string, T>> Get<T>() => CacheStore[typeof(T)] as ICache<Dictionary<string, T>>;
     }
 }

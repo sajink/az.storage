@@ -1,6 +1,8 @@
 # Azure Storage Helpers
 
-This library has helper classes to easily access and manipulate Azure Storage Tables and Blobs
+This library has helper classes to easily access and manipulate Azure Storage Tables and Blobs.
+
+The library assumes Table name is same as Type name. It is possible to override this default behavior by specifying a Table name.
 
 ## Creating a cached Dictionary of <PartitionKey, <RowKey, Name>>
 ```csharp
@@ -9,7 +11,7 @@ MapCache.Context = new AzureStorageContext("storage-connection-string");
 MapCache.Add<Contacts>();
 foreach (var c in MapCache.Get<Contacts>().GetValue("Some-PartitionKey"))
 {
-	Console.WriteLine($"{c.Key} : {c.Value}");
+  Console.WriteLine($"{c.Key} : {c.Value}");
 }
 ```
 
@@ -22,7 +24,7 @@ EntityCache.Add<Org>(TimeSpan.FromMinutes(180));
 var leads = EntityCache.Get<Leads>();
 foreach (var c in leads.GetValue("Some-PartitionKey"))
 {
-	Console.WriteLine($"{c.Key} : {c.Value.Phone}");
+  Console.WriteLine($"{c.Key} : {c.Value.Phone}");
 }
 ```
 

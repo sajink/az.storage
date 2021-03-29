@@ -1,0 +1,39 @@
+﻿namespace Az.Storage.Cache
+{
+    using System.Collections;
+    using System.Collections.Generic;
+
+    public interface ICache<T> where T : IEnumerable
+    {
+        /// <summary>
+        /// Get the entire Dictionary<string, T> collection in Cache
+        /// where T is the IEnumerable specific to the ICache implementation
+        /// </summary>
+        /// <returns>Entire cached collection</returns>
+        Dictionary<string, T> GetAll();
+
+        /// <summary>
+        /// Get the entire IEnumerable of Type T
+        /// fetched by the given Key
+        /// </summary>
+        /// <returns>The T value for given <c>key</c></returns>
+        T GetValue(string key);
+
+        /// <summary>
+        /// Checks if the given <c>key</c> is available in Cache
+        /// </summary>
+        /// <param name="key">The <c>key</c> to check for</param>
+        /// <returns><c>True</c> if exists, <c>False</c> otherwise</returns>
+        bool HasKey(string key);
+
+        /// <summary>
+        /// Marks the collection stale to force a refresh
+        /// </summary>
+        void MarkStale();
+
+        /// <summary>
+        /// <c>IEnumerable</c> of all Keys in the Cache
+        /// </summary>
+        IEnumerable<string> Keys { get; }
+    }
+}

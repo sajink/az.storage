@@ -16,7 +16,7 @@
         public async Task<List<T>> GetTable<T>() where T : ITableEntity, new() =>
             await GetTable<T>(typeof(T).Name);
 
-        public async Task<List<T>> GetQueryResults<T>(TableQuery<T> query) where T : ITableEntity, new() =>
+        public async Task<List<T>> GetQueryResults<T>(string query) where T : ITableEntity, new() =>
             await GetQueryResults<T>(typeof(T).Name, query);
         #endregion
 

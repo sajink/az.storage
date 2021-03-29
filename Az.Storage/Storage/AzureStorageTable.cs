@@ -8,21 +8,23 @@
     {
         #region R
         public async Task<T> GetRow<T>(string table, string partition, string row) where T : ITableEntity, new() =>
-            (await GetQueryResults<T>(table, new TableQuery<T>().Where($"(PartitionKey eq '{partition}') and (RowKey eq '{row}')")))[0];
+            (await GetQueryResults<T>(table, $"(PartitionKey eq '{partition}') and (RowKey eq '{row}')"))[0];
 
         public async Task<List<T>> GetPartition<T>(string table, string partition) where T : ITableEntity, new() =>
-            await GetQueryResults<T>(table, new TableQuery<T>().Where($"(PartitionKey eq '{partition}')"));
+            await GetQueryResults<T>(table, $"(PartitionKey eq '{partition}')");
 
         public async Task<List<T>> GetTable<T>(string table) where T : ITableEntity, new() =>
-            await GetQueryResults<T>(table, new TableQuery<T>());
+            await GetQueryResults<T>(table);
 
-        public async Task<List<T>> GetQueryResults<T>(string table, TableQuery<T> query) where T : ITableEntity, new()
+        public async Task<List<T>> GetQueryResults<T>(string table, string query = null) where T : ITableEntity, new()
         {
+
+            var q = string.IsNullOrEmpty(query) ? new TableQuery<T>() : new TableQuery<T>().Where(query);
             List<T> result = new List<T>();
             TableContinuationToken token = null;
             do
             {
-                var resultSegment = (await Table(table).ExecuteQuerySegmentedAsync(query, token)) as TableQuerySegment<T>;
+                var resultSegment = (await Table(table).ExecuteQuerySegmentedAsync(q, token)) as TableQuerySegment<T>;
                 token = resultSegment.ContinuationToken;
                 result.AddRange(resultSegment.Results);
             } while (token != null);

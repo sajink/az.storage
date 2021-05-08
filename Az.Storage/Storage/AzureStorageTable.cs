@@ -14,11 +14,10 @@
             await GetQueryResults<T>(table, $"(PartitionKey eq '{partition}')");
 
         public async Task<List<T>> GetTable<T>(string table) where T : ITableEntity, new() =>
-            await GetQueryResults<T>(table);
+            await GetQueryResults<T>(table, string.Empty);
 
-        public async Task<List<T>> GetQueryResults<T>(string table, string query = null) where T : ITableEntity, new()
+        public async Task<List<T>> GetQueryResults<T>(string table, string query) where T : ITableEntity, new()
         {
-
             var q = string.IsNullOrEmpty(query) ? new TableQuery<T>() : new TableQuery<T>().Where(query);
             List<T> result = new List<T>();
             TableContinuationToken token = null;

@@ -5,7 +5,7 @@
 
     public static class EntityCache
     {
-        private static Dictionary<Type, Object> _store = new Dictionary<Type, Object>();
+        private static Dictionary<Type, object> _store = new Dictionary<Type, object>();
 
         /// <summary>
         /// To set the AzureStorageContext for this Cache.
@@ -26,10 +26,10 @@
         /// <summary>
         /// Add a Type to Cache. Assumption is that Type name is same as Table name.
         /// At the moment it is not possible to override this behavior for Cache.
-        /// <c>Type</c> must derice from <c>TableEntity</c>
+        /// <c>Type</c> must derive from <c>TableEntity</c>
         /// </summary>
         /// <typeparam name="T">Type of entity to be cached</typeparam>
-        /// <param name="refresh">Time in minutes after which this Cache needs to refresh</param>
+        /// <param name="refresh">TimeSpan after which this Cache needs to refresh</param>
         public static void Add<T>(TimeSpan refresh) where T : BaseEntity, new()
         {
             if (Context == null) throw new ArgumentNullException("Context property needs to be set");
@@ -41,6 +41,6 @@
         /// </summary>
         /// <typeparam name="T">Type of entity to be retrieved from cache</typeparam>
         /// <returns>Entire <c>ICache</c> of this entity</returns>
-        public static ICache<Dictionary<string, T>> Get<T>() => _store[typeof(T)] as ICache<Dictionary<string, T>>;
+        public static ICache<T> Get<T>() => _store[typeof(T)] as ICache<T>;
     }
 }

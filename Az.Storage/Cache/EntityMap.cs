@@ -1,12 +1,11 @@
 ﻿namespace Az.Storage.Cache
 {
-    using Microsoft.Azure.Cosmos.Table;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
-    internal class EntityMap<T> : ICache<Dictionary<string, T>> where T : TableEntity, new()
+    internal class EntityMap<T> : ICache<T> where T : BaseEntity, new()
     {
         private Dictionary<string, Dictionary<string, T>> _map;
         private TimeSpan _refresh;
@@ -23,13 +22,15 @@
             LastRefreshed = DateTime.Now;
         }
 
-        #region IMap
+        #region ICache
+        /// <inheritdoc/>
         public Dictionary<string, Dictionary<string, T>> GetAll()
         {
             if (ShouldRefresh) Refresh().Wait();
             return _map;
         }
 
+        /// <inheritdoc/>
         public IEnumerable<string> Keys
         {
             get
@@ -39,17 +40,31 @@
             }
         }
 
+        /// <inheritdoc/>
         public Dictionary<string, T> GetValue(string key)
         {
             if (ShouldRefresh) Refresh().Wait();
             return _map.ContainsKey(key) ? _map[key] : null;
         }
 
+        /// <inheritdoc/>
         public bool HasKey(string key) => _map.ContainsKey(key);
 
+        /// <inheritdoc/>
         public void MarkStale() => _stale = true;
 
-        #endregion IMap
+        /// <summary>
+        /// Get the entire collection in Cache, after flattening the hierarchy.
+        /// This method should not be used if there is a possibility of
+        /// RowKey conflict across Partitions.
+        /// This requires a BaseEntity with Name populated, as the flattened value will be Name.
+        /// </summary>
+        /// <returns>Entire cached collection</returns>
+        public Dictionary<string, T> Flatten()
+        {
+            return GetAll().SelectMany(u => u.Value).ToDictionary(u => u.Key, u => u.Value);
+        }
+        #endregion ICache
 
         #region Private - Cache Refresh
 

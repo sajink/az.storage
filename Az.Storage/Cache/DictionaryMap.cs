@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    internal class DictionaryMap : ICache<Dictionary<string, string>>
+    internal class DictionaryMap : ICache<string>
     {
         private Dictionary<string, Dictionary<string, string>> _map;
         private TimeSpan _refresh;
@@ -22,13 +22,15 @@
             LastRefreshed = DateTime.Now;
         }
 
-        #region IMap
+        #region ICache
+        /// <inheritdoc/>
         public Dictionary<string, Dictionary<string, string>> GetAll()
         {
             if (ShouldRefresh) Refresh().Wait();
             return _map;
         }
 
+        /// <inheritdoc/>
         public IEnumerable<string> Keys
         {
             get
@@ -38,17 +40,25 @@
             }
         }
 
+        /// <inheritdoc/>
         public Dictionary<string, string> GetValue(string key)
         {
             if (ShouldRefresh) Refresh().Wait();
             return _map.ContainsKey(key) ? _map[key] : null;
         }
 
+        /// <inheritdoc/>
         public bool HasKey(string key) => _map.ContainsKey(key);
 
+        /// <inheritdoc/>
         public void MarkStale() => _stale = true;
 
-        #endregion IMap
+        /// <inheritdoc/>
+        public Dictionary<string, string> Flatten()
+        {
+            return GetAll().SelectMany(u => u.Value).ToDictionary(u => u.Key, u => u.Value);
+        }
+        #endregion ICache
 
         #region Private - Cache Refresh
 

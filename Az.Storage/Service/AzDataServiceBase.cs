@@ -8,6 +8,7 @@
     public class AzDataServiceBase<T> : IAzDataService<T> where T : ITableEntity, new()
     {
         protected readonly AzureStorageContext _context;
+        protected int _split = 0;
 
         /// <summary>
         /// Creates an instance acting upon the supplied <c>context</c>
@@ -26,7 +27,7 @@
         /// <inheritdoc/>
         public virtual async Task<T> GetOne(string id)
         {
-            var keys = id.Split('-');
+            var keys = _split == 0 ? id.Split('-') : new string[] { id.Substring(0, _split), id };
             if (keys.Length != 2) throw new ArgumentException("ID is invalid");
             return await _context.GetRow<T>(keys[0], keys[1]);
         }

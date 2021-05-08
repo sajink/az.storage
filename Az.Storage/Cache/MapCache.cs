@@ -5,7 +5,7 @@
 
     public static class MapCache
     {
-        private static Dictionary<Type, ICache<Dictionary<string, string>>> _store = new Dictionary<Type, ICache<Dictionary<string, string>>>();
+        private static Dictionary<Type, ICache<string>> _store = new Dictionary<Type, ICache<string>>();
 
         /// <summary>
         /// To set the AzureStorageContext for this Cache.
@@ -41,7 +41,6 @@
         /// </summary>
         /// <typeparam name="T">Type of entity to be retrieved from cache</typeparam>
         /// <returns>Entire <c>ICache</c> of this entity</returns>
-        public static ICache<Dictionary<string, string>> Get<T>() => _store[typeof(T)];
-
+        public static ICache<string> Get<T>() => _store[typeof(T)];
     }
 }

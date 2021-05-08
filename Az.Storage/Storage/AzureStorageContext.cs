@@ -3,7 +3,6 @@
     using Azure.Storage.Blobs;
     using Microsoft.Azure.Cosmos.Table;
     using System;
-    using System.Linq;
 
     public partial class AzureStorageContext
     {

@@ -1,11 +1,11 @@
 ﻿namespace Az.Storage
 {
-    using Microsoft.Azure.Cosmos.Table;
+    using Azure.Data.Tables;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public class AzDataServiceBase<T> : IAzDataService<T> where T : ITableEntity, new()
+    public class AzDataServiceBase<T> : IAzDataService<T> where T : class, ITableEntity, new()
     {
         protected readonly string _table;
         protected readonly AzureStorageContext _context;

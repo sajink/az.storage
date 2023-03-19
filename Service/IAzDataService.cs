@@ -1,6 +1,6 @@
 ﻿namespace Az.Storage
 {
-    using Microsoft.Azure.Cosmos.Table;
+    using Azure.Data.Tables;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 

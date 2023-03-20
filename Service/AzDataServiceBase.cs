@@ -35,8 +35,12 @@
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> Create(T obj) =>
-            string.IsNullOrEmpty(_table) ? await _context.Create<T>(obj) : await _context.Create<T>(_table, obj);
+        public virtual async Task<bool> Create(T obj)
+        {
+            if(string.IsNullOrEmpty(obj.PartitionKey) && !string.IsNullOrEmpty(obj.RowKey)) 
+                obj.PartitionKey = obj.RowKey.Substring(0, _split); 
+            return string.IsNullOrEmpty(_table) ? await _context.Create<T>(obj) : await _context.Create<T>(_table, obj);
+        }
 
         /// <inheritdoc/>
         public virtual async Task<bool> Delete(string id) =>

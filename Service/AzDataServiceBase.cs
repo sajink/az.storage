@@ -9,6 +9,7 @@
     {
         protected readonly string _table;
         protected readonly AzureStorageContext _context;
+        protected KeyType _keyType = KeyType.None;
         protected int _split = 0;
 
         /// <summary>
@@ -37,7 +38,8 @@
         /// <inheritdoc/>
         public virtual async Task<bool> Create(T obj)
         {
-            if(string.IsNullOrEmpty(obj.PartitionKey) && !string.IsNullOrEmpty(obj.RowKey)) 
+            if (string.IsNullOrEmpty(obj.RowKey) && _keyType != KeyType.None) obj.RowKey = Keys.GetKey(_keyType, 330);
+            if (string.IsNullOrEmpty(obj.PartitionKey) && !string.IsNullOrEmpty(obj.RowKey)) 
                 obj.PartitionKey = obj.RowKey.Substring(0, _split); 
             return string.IsNullOrEmpty(_table) ? await _context.Create<T>(obj) : await _context.Create<T>(_table, obj);
         }

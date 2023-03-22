@@ -3,7 +3,7 @@
     using Azure.Storage.Blobs;
     using Azure.Data.Tables;
     using System;
-    using System.Data.Common;
+    using System.Configuration;
     using Azure.Storage.Queues;
 
     public partial class AzureStorageContext
@@ -15,10 +15,17 @@
         private readonly BlobServiceClient _blobs;
         private readonly QueueServiceClient _queues;
 
-        public AzureStorageContext(string connection = null, bool createMissing = true, bool updateReplaces = true)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="connection">Required. The connection string for this Azure Storage instance.</param>
+        /// <param name="createMissing">Optional. Creates missing storages (viz., Table, Container) if True. </param>
+        /// <param name="updateReplaces"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public AzureStorageContext(string connection, bool createMissing = true, bool updateReplaces = true)
         {
-            _connection = connection ?? Environment.GetEnvironmentVariable("Az.Storage.Connection");
-            if(connection == null) { throw new ArgumentNullException(nameof(connection)); }
+            if (string.IsNullOrWhiteSpace(connection)) { throw new ArgumentNullException(nameof(connection)); }
+            _connection = connection;
             _tables = new TableServiceClient(_connection);
             _blobs = new BlobServiceClient(_connection);
             _queues = new QueueServiceClient(_connection);

@@ -3,15 +3,15 @@
     using Azure.Data.Tables;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Azure.Storage;
-    using System.Xml;
-    using Azure;
 
     public partial class AzureStorageContext
     {
         #region R
-        public async Task<T> GetRow<T>(string table, string partition, string row) where T : class, ITableEntity, new() =>
-            (await GetQueryResults<T>(table, $"(PartitionKey eq '{partition}') and (RowKey eq '{row}')"))[0];
+        public async Task<T> GetRow<T>(string table, string partition, string row) where T : class, ITableEntity, new()
+        {
+            var result = await GetQueryResults<T>(table, $"(PartitionKey eq '{partition}') and (RowKey eq '{row}')");
+            return result.Count>0 ? result[0] : default(T);
+        }
 
         public async Task<List<T>> GetPartition<T>(string table, string partition) where T : class, ITableEntity, new() =>
             await GetQueryResults<T>(table, $"(PartitionKey eq '{partition}')");

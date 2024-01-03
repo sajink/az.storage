@@ -39,9 +39,11 @@
                 }
                 else
                 {
-                    if (value.IndexOf(SplitBy) <= 0) throw new InvalidEnumArgumentException($"ID should contain '{SplitBy}' appropriately.");
+                    if (value.IndexOf(SplitBy) <= 0) throw new InvalidEnumArgumentException($"ID should contain '{SplitBy}'.");
                     var vals = value.Split(this.SplitBy);
-                    if (vals.Length != 2) throw new InvalidEnumArgumentException($"ID should contain '{SplitBy}' appropriately.");
+                    if (vals.Length != 2) throw new InvalidEnumArgumentException($"ID should contain '{SplitBy}' only once.");
+                    this.PartitionKey = vals[0];
+                    this.RowKey = vals[1];
                 }
             }
         }

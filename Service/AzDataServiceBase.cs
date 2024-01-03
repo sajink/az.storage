@@ -17,7 +17,7 @@
         /// </summary>
         /// <param name="context">The underlying <c>AzureStorageContext</c></param>
         /// <param name="table">Optional. Table name, if different from T name.</c></param>
-        public AzDataServiceBase(AzureStorageContext context, string table = null) => (_context, _table) = (context, table);
+        public AzDataServiceBase(AzureStorageContext context, string table = "") => (_context, _table) = (context, table);
 
         /// <inheritdoc/>
         public virtual async Task<List<T>> GetAll() =>

@@ -25,6 +25,13 @@
         Task<List<T>> GetAll();
 
         /// <summary>
+        /// Get results from a query
+        /// </summary>
+        /// <param name="query">Query to filter by</param>
+        /// <returns>List of rows that match the query</returns>
+        Task<List<T>> GetQueryResults(string query);
+
+        /// <summary>
         /// Create one row in table
         /// </summary>
         /// <param name="obj">The entity T to be created</param>
@@ -37,6 +44,20 @@
         /// <param name="obj">The entity T to be updated</param>
         /// <returns><c>True</c> if success, <c>False</c> otherwise</returns>
         Task<bool> Update(T obj);
+
+        /// <summary>
+        /// Try to update one row in table. If it fails, create it.
+        /// </summary>
+        /// <param name="obj">The entity T to be upserted</param>
+        /// <returns><c>True</c> if success, <c>False</c> otherwise</returns>
+        Task<bool> Upsert(T obj);
+
+        /// <summary>
+        /// Try to create one row in table. If it fails, update it.
+        /// </summary>
+        /// <param name="obj">The entity T to be insated</param>
+        /// <returns><c>True</c> if success, <c>False</c> otherwise</returns>
+        Task<bool> Insate(T obj);
 
         /// <summary>
         /// Delete one row from table

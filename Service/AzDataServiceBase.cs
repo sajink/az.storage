@@ -17,22 +17,27 @@
         /// </summary>
         /// <param name="context">The underlying <c>AzureStorageContext</c></param>
         /// <param name="table">Optional. Table name, if different from T name.</c></param>
-        public AzDataServiceBase(AzureStorageContext context, string table = "") => (_context, _table) = (context, table);
+        public AzDataServiceBase(AzureStorageContext context, string table = "")
+        {
+            _context = context;
+            _table = string.IsNullOrEmpty(_table) ? typeof(T).Name : table;
+        }
 
         /// <inheritdoc/>
-        public virtual async Task<List<T>> GetAll() =>
-            string.IsNullOrEmpty(_table) ? await _context.GetTable<T>() : await _context.GetTable<T>(_table);
+        public virtual async Task<List<T>> GetAll() => await _context.GetTable<T>(_table);
 
         /// <inheritdoc/>
-        public virtual async Task<List<T>> GetSet(string id) =>
-            string.IsNullOrEmpty(_table) ? await _context.GetPartition<T>(id) : await _context.GetPartition<T>(_table, id);
+        public virtual async Task<List<T>> GetSet(string id) => await _context.GetPartition<T>(_table, id);
+
+        /// <inheritdoc/>
+        public virtual async Task<List<T>> GetQueryResults(string query) => await _context.GetQueryResults<T>(_table, query);
 
         /// <inheritdoc/>
         public virtual async Task<T> GetOne(string id)
         {
             var keys = _split == 0 ? id.Split('-') : new string[] { id.Substring(0, _split), id };
             if (keys.Length != 2) throw new ArgumentException("ID is invalid");
-            return string.IsNullOrEmpty(_table) ? await _context.GetRow<T>(keys[0], keys[1]) : await _context.GetRow<T>(_table, keys[0], keys[1]);
+            return await _context.GetRow<T>(_table, keys[0], keys[1]);
         }
 
         /// <inheritdoc/>
@@ -41,15 +46,27 @@
             if (string.IsNullOrEmpty(obj.RowKey) && _keyType != KeyType.None) obj.RowKey = Keys.GetKey(_keyType, 330);
             if (string.IsNullOrEmpty(obj.PartitionKey) && !string.IsNullOrEmpty(obj.RowKey)) 
                 obj.PartitionKey = obj.RowKey.Substring(0, _split); 
-            return string.IsNullOrEmpty(_table) ? await _context.Create<T>(obj) : await _context.Create<T>(_table, obj);
+            return await _context.Create<T>(_table, obj);
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> Delete(string id) =>
-            string.IsNullOrEmpty(_table) ? await _context.Delete<T>(await GetOne(id)) : await _context.Delete<T>(_table, await GetOne(id));
+        public virtual async Task<bool> Delete(string id) => await _context.Delete<T>(_table, await GetOne(id));
 
         /// <inheritdoc/>
-        public virtual async Task<bool> Update(T obj) =>
-            string.IsNullOrEmpty(_table) ? await _context.Update<T>(obj) : await _context.Update<T>(_table, obj);
+        public virtual async Task<bool> Update(T obj) => await _context.Update<T>(_table, obj);
+
+        /// <inheritdoc/>
+        public Task<bool> Upsert(T obj)
+        {
+            try { return Update(obj); }
+            catch { return Create(obj);}
+        }
+
+        /// <inheritdoc/>
+        public Task<bool> Insate(T obj)
+        {
+            try { return Create(obj); }
+            catch { return Update(obj); }
+        }
     }
 }

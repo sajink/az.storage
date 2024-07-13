@@ -39,6 +39,13 @@
         Task<bool> Create(T obj);
 
         /// <summary>
+        /// Create one row in table
+        /// </summary>
+        /// <param name="obj">The entity T to be created</param>
+        /// <returns><c>True</c> if success, <c>False</c> otherwise</returns>
+        Task Create(IList<T> list);
+
+        /// <summary>
         /// Update one row in table
         /// </summary>
         /// <param name="obj">The entity T to be updated</param>

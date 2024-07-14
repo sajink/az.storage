@@ -92,7 +92,7 @@
             for (int i = 0; i < list.Count; i += BATCHSIZE)
             {
                 var batch = new List<TableTransactionAction>();
-                var set = list.Skip(i * BATCHSIZE).Take(BATCHSIZE).Select(o => new TableTransactionAction(TableTransactionActionType.UpsertMerge, o));
+                var set = list.Skip(batch.Count * BATCHSIZE).Take(BATCHSIZE).Select(o => new TableTransactionAction(TableTransactionActionType.UpsertMerge, o));
                 batch.AddRange(set);
                 batches.Add(batch);
             }

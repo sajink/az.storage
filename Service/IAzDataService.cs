@@ -7,6 +7,23 @@
     public interface IAzDataService<T> where T : ITableEntity, new()
     {
         /// <summary>
+        /// Table on which this service instance is operating.
+        /// </summary>
+        string Table { get; set; }
+
+        /// <summary>
+        /// For the table split key [ID = PK-RK], this is the character to split by.
+        /// This setting is considered only if SplitAt is set to zero.
+        /// </summary>
+        string SplitBy { get; set; }
+
+        /// <summary>
+        /// For the table split key [PK = Left(RK,n), ID=RK], this is the position to split at.
+        /// This setting overrides SplitBy.
+        /// </summary>
+        int SplitAt { get; set; }
+
+        /// <summary>
         /// Get a specific row from Table
         /// </summary>
         /// <returns>One entity T that matches query</returns>

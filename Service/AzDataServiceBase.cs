@@ -62,8 +62,9 @@
         /// <inheritdoc/>
         public virtual async Task Create(IList<T> list)
         {
+            var table = Table; // To maintain value in case a parallel call changed the table name
             var distinct = list.Select(o => o.PartitionKey).Distinct();
-            foreach (var pk in distinct) await CreateInPartition(list.Where(o => o.PartitionKey == pk).ToList());
+            foreach (var pk in distinct) await CreateInPartition(table, list.Where(o => o.PartitionKey == pk).ToList());
         }
 
         /// <inheritdoc/>
@@ -86,18 +87,18 @@
             catch { return Update(obj); }
         }
 
-        private async Task CreateInPartition(IList<T> list)
+        private async Task CreateInPartition(string table, IList<T> list)
         {
             var batches = new List<List<TableTransactionAction>>();
             for (int i = 0; i < list.Count; i += BATCHSIZE)
             {
                 var batch = new List<TableTransactionAction>();
-                var set = list.Skip(batch.Count * BATCHSIZE).Take(BATCHSIZE).Select(o => new TableTransactionAction(TableTransactionActionType.UpsertMerge, o));
+                var set = list.Skip(batches.Count * BATCHSIZE).Take(BATCHSIZE).Select(o => new TableTransactionAction(TableTransactionActionType.UpsertMerge, o));
                 batch.AddRange(set);
                 batches.Add(batch);
             }
             var options = new ParallelOptions() { MaxDegreeOfParallelism = 10 };
-            await Parallel.ForEachAsync(batches, options, async (b, ct) => await _context.Table(Table).SubmitTransactionAsync(b));
+            await Parallel.ForEachAsync(batches, options, async (b, ct) => await _context.Table(table).SubmitTransactionAsync(b));
         }
     }
 }

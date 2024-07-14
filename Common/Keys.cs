@@ -31,7 +31,7 @@
 
         #region Internal Helpers
         private static string Insta(int offset, string format) => OffsetTime(offset).ToString(format);
-        private static double Interval(DateTime from, int offset, bool hi = false) => Math.Abs(hi ? (OffsetTime(offset) - from).TotalMilliseconds : Math.Floor((OffsetTime(offset) - from).TotalMinutes));
+        private static double Interval(DateTime from, int offset, bool hi = false) => Math.Floor(Math.Abs(hi ? (OffsetTime(offset) - from).TotalMilliseconds : (OffsetTime(offset) - from).TotalMinutes));
         private static DateTime OffsetTime(int offset) => DateTime.UtcNow.AddMinutes(offset);
         #endregion
     }

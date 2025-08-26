@@ -33,10 +33,12 @@
         public static void Add<T>(TimeSpan refresh) where T : BaseEntity
         {
             if (Context == null) throw new ArgumentNullException("Context property needs to be set");
-            Add<T>(refresh, Context);
+            Add<T>(Context, refresh);
         }
 
-        public static void Add<T>(TimeSpan refresh, AzureStorageContext ctx) where T : BaseEntity
+        public static void Add<T>(AzureStorageContext ctx) where T : BaseEntity => Add<T>(ctx, TimeSpan.FromMinutes(30));
+
+        public static void Add<T>(AzureStorageContext ctx, TimeSpan refresh) where T : BaseEntity
         {
             _store.Add(typeof(T), new DictionaryMap(typeof(T), ctx, refresh));
         }

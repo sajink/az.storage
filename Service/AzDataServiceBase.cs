@@ -68,6 +68,14 @@ public class AzDataServiceBase<T> : IAzDataService<T> where T : class, ITableEnt
     public virtual async Task<bool> Delete(string id) => await _context.Delete<T>(Table, await GetOne(id));
 
     /// <inheritdoc/>
+    public virtual async Task Delete(IList<T> list)
+    {
+        var table = Table; // To maintain value in case a parallel call changed the table name
+        var distinct = list.Select(o => o.PartitionKey).Distinct();
+        foreach (var pk in distinct) await DeleteInPartition(table, list.Where(o => o.PartitionKey == pk).ToList());
+    }
+
+    /// <inheritdoc/>
     public virtual async Task<bool> Update(T obj) => await _context.Update<T>(Table, obj);
 
     /// <inheritdoc/>
@@ -91,6 +99,20 @@ public class AzDataServiceBase<T> : IAzDataService<T> where T : class, ITableEnt
         {
             var batch = new List<TableTransactionAction>();
             var set = list.Skip(batches.Count * BATCHSIZE).Take(BATCHSIZE).Select(o => new TableTransactionAction(TableTransactionActionType.UpsertMerge, o));
+            batch.AddRange(set);
+            batches.Add(batch);
+        }
+        var options = new ParallelOptions() { MaxDegreeOfParallelism = 10 };
+        await Parallel.ForEachAsync(batches, options, async (b, ct) => await _context.Table(table).SubmitTransactionAsync(b));
+    }
+
+    private async Task DeleteInPartition(string table, IList<T> list)
+    {
+        var batches = new List<List<TableTransactionAction>>();
+        for (int i = 0; i < list.Count; i += BATCHSIZE)
+        {
+            var batch = new List<TableTransactionAction>();
+            var set = list.Skip(batches.Count * BATCHSIZE).Take(BATCHSIZE).Select(o => new TableTransactionAction(TableTransactionActionType.Delete, o));
             batch.AddRange(set);
             batches.Add(batch);
         }

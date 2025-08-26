@@ -57,7 +57,7 @@ public interface IAzDataService<T> where T : ITableEntity, new()
     /// <summary>
     /// Create one row in table
     /// </summary>
-    /// <param name="obj">The entity T to be created</param>
+    /// <param name="list">A list of entity T to be created</param>
     /// <returns><c>True</c> if success, <c>False</c> otherwise</returns>
     Task Create(IList<T> list);
 
@@ -88,5 +88,11 @@ public interface IAzDataService<T> where T : ITableEntity, new()
     /// <param name="id"><c>id</c> of the item to be deleted</param>
     /// <returns><c>True</c> if success, <c>False</c> otherwise</returns>
     Task<bool> Delete(string id);
+
+    /// <summary>
+    /// Delete one row from table
+    /// </summary>
+    /// <param name="list">A list of <c>T</c> to be deleted</param>
+    Task Delete(IList<T> list);
 }
 

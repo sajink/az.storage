@@ -30,7 +30,7 @@
         public static string DecreasingKeyHiRes(int offset = 0) => Interval(TILL, offset, true).ToString();
 
         #region Internal Helpers
-        private static string Insta(int offset, string format) => OffsetTime(offset).ToString(format);
+        private static string Insta(int offset, string format) => (offset == 0 ? DateTime.UtcNow : OffsetTime(offset)).ToString(format);
         private static double Interval(DateTime from, int offset, bool hi = false) => Math.Floor(Math.Abs(hi ? (OffsetTime(offset) - from).TotalMilliseconds : (OffsetTime(offset) - from).TotalMinutes));
         private static DateTime OffsetTime(int offset) => DateTime.UtcNow.AddMinutes(offset);
         #endregion

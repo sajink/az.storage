@@ -18,7 +18,7 @@
         /// Add a Type to Cache. Assumption is that Type name is same as Table name.
         /// At the moment it is not possible to override this behavior for Cache.
         /// Default refresh interval of 30 minutes is used.
-        /// <c>Type</c> must derice from <c>TableEntity</c>
+        /// <c>Type</c> must derive from <c>TableEntity</c>
         /// </summary>
         /// <typeparam name="T">Type of entity to be cached</typeparam>
         public static void Add<T>() where T : BaseEntity, new() => Add<T>(TimeSpan.FromMinutes(30));
@@ -33,7 +33,12 @@
         public static void Add<T>(TimeSpan refresh) where T : BaseEntity, new()
         {
             if (Context == null) throw new ArgumentNullException("Context property needs to be set");
-            _store.Add(typeof(T), new EntityMap<T>(Context, refresh));
+            Add<T>(refresh, Context);
+        }
+
+        public static void Add<T>(TimeSpan refresh, AzureStorageContext ctx) where T : BaseEntity, new()
+        {
+            _store.Add(typeof(T), new EntityMap<T>(ctx, refresh));
         }
 
         /// <summary>

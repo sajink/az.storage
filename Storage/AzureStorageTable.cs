@@ -31,7 +31,7 @@
 
         #region CUD
         public async Task<bool> Create<T>(string table, T obj) where T : ITableEntity, new()
-            => (await Table(table).AddEntityAsync(obj)).Status == 204;
+            => (await Table(table).UpsertEntityAsync(obj)).Status == 204;
 
         public async Task<bool> Update<T>(string table, T obj) where T : ITableEntity, new()
             => (await Table(table).UpdateEntityAsync(obj, Azure.ETag.All, _updateReplaces ? TableUpdateMode.Replace : TableUpdateMode.Merge)).Status==204;

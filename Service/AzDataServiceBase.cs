@@ -31,68 +31,105 @@ public class AzDataServiceBase<T> : IAzDataService<T> where T : class, ITableEnt
     public int SplitAt { get; set; } = 0;
 
     /// <inheritdoc/>
-    public virtual async Task<List<T>> GetAll() => await _context.GetTable<T>(Table);
+    public virtual async Task<List<T>> GetAll() => await GetAll(CancellationToken.None);
 
     /// <inheritdoc/>
-    public virtual async Task<List<T>> GetSet(string id) => await _context.GetPartition<T>(Table, id);
+    public virtual async Task<List<T>> GetAll(CancellationToken cancellationToken) => await _context.GetTable<T>(Table, cancellationToken);
 
     /// <inheritdoc/>
-    public virtual async Task<List<T>> GetQueryResults(string query) => await _context.GetQueryResults<T>(Table, query);
+    public virtual async Task<List<T>> GetSet(string id) => await GetSet(id, CancellationToken.None);
 
     /// <inheritdoc/>
-    public virtual async Task<T> GetOne(string id)
+    public virtual async Task<List<T>> GetSet(string id, CancellationToken cancellationToken) => await _context.GetPartition<T>(Table, id, cancellationToken);
+
+    /// <inheritdoc/>
+    public virtual async Task<List<T>> GetQueryResults(string query) => await GetQueryResults(query, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public virtual async Task<List<T>> GetQueryResults(string query, CancellationToken cancellationToken) => await _context.GetQueryResults<T>(Table, query, cancellationToken);
+
+    /// <inheritdoc/>
+    public virtual async Task<PagedResult<T>> GetPage(string query, int pageSize = 100, string? continuationToken = null, CancellationToken cancellationToken = default) =>
+        await _context.GetQueryResultsPage<T>(Table, query, pageSize, continuationToken, cancellationToken);
+
+    /// <inheritdoc/>
+    public virtual async Task<T> GetOne(string id) => await GetOne(id, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public virtual async Task<T> GetOne(string id, CancellationToken cancellationToken)
     {
         var keys = SplitAt == 0 ? id.Split(SplitBy) : new string[] { id.Substring(0, SplitAt), id };
         if (keys.Length != 2) throw new ArgumentException("ID is invalid");
-        return await _context.GetRow<T>(Table, keys[0], keys[1]);
+        return await _context.GetRow<T>(Table, keys[0], keys[1], cancellationToken);
     }
 
     /// <inheritdoc/>
-    public virtual async Task<bool> Create(T obj)
+    public virtual async Task<bool> Create(T obj) => await Create(obj, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public virtual async Task<bool> Create(T obj, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(obj.RowKey) && _keyType != KeyType.None) obj.RowKey = Keys.GetKey(_keyType, 330);
         if (string.IsNullOrEmpty(obj.PartitionKey) && !string.IsNullOrEmpty(obj.RowKey))
             obj.PartitionKey = obj.RowKey.Substring(0, SplitAt);
-        return await _context.Create<T>(Table, obj);
+        return await _context.Create<T>(Table, obj, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public virtual async Task Create(IList<T> list)
+    public virtual async Task Create(IList<T> list) => await Create(list, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public virtual async Task Create(IList<T> list, CancellationToken cancellationToken)
     {
         var table = Table; // To maintain value in case a parallel call changed the table name
         var distinct = list.Select(o => o.PartitionKey).Distinct();
-        foreach (var pk in distinct) await CreateInPartition(table, list.Where(o => o.PartitionKey == pk).ToList());
+        foreach (var pk in distinct) await CreateInPartition(table, list.Where(o => o.PartitionKey == pk).ToList(), cancellationToken);
     }
 
     /// <inheritdoc/>
-    public virtual async Task<bool> Delete(string id) => await _context.Delete<T>(Table, await GetOne(id));
+    public virtual async Task<bool> Delete(string id) => await Delete(id, CancellationToken.None);
 
     /// <inheritdoc/>
-    public virtual async Task Delete(IList<T> list)
+    public virtual async Task<bool> Delete(string id, CancellationToken cancellationToken) => await _context.Delete<T>(Table, await GetOne(id, cancellationToken), cancellationToken);
+
+    /// <inheritdoc/>
+    public virtual async Task Delete(IList<T> list) => await Delete(list, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public virtual async Task Delete(IList<T> list, CancellationToken cancellationToken)
     {
         var table = Table; // To maintain value in case a parallel call changed the table name
         var distinct = list.Select(o => o.PartitionKey).Distinct();
-        foreach (var pk in distinct) await DeleteInPartition(table, list.Where(o => o.PartitionKey == pk).ToList());
+        foreach (var pk in distinct) await DeleteInPartition(table, list.Where(o => o.PartitionKey == pk).ToList(), cancellationToken);
     }
 
     /// <inheritdoc/>
-    public virtual async Task<bool> Update(T obj) => await _context.Update<T>(Table, obj);
+    public virtual async Task<bool> Update(T obj) => await Update(obj, CancellationToken.None);
 
     /// <inheritdoc/>
-    public Task<bool> Upsert(T obj)
+    public virtual async Task<bool> Update(T obj, CancellationToken cancellationToken) => await _context.Update<T>(Table, obj, cancellationToken);
+
+    /// <inheritdoc/>
+    public Task<bool> Upsert(T obj) => Upsert(obj, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public Task<bool> Upsert(T obj, CancellationToken cancellationToken)
     {
-        try { return Update(obj); }
-        catch { return Create(obj); }
+        try { return Update(obj, cancellationToken); }
+        catch { return Create(obj, cancellationToken); }
     }
 
     /// <inheritdoc/>
-    public Task<bool> Insate(T obj)
+    public Task<bool> Insate(T obj) => Insate(obj, CancellationToken.None);
+
+    /// <inheritdoc/>
+    public Task<bool> Insate(T obj, CancellationToken cancellationToken)
     {
-        try { return Create(obj); }
-        catch { return Update(obj); }
+        try { return Create(obj, cancellationToken); }
+        catch { return Update(obj, cancellationToken); }
     }
 
-    private async Task CreateInPartition(string table, IList<T> list)
+    private async Task CreateInPartition(string table, IList<T> list, CancellationToken cancellationToken)
     {
         var batches = new List<List<TableTransactionAction>>();
         for (int i = 0; i < list.Count; i += BATCHSIZE)
@@ -102,11 +139,11 @@ public class AzDataServiceBase<T> : IAzDataService<T> where T : class, ITableEnt
             batch.AddRange(set);
             batches.Add(batch);
         }
-        var options = new ParallelOptions() { MaxDegreeOfParallelism = 10 };
-        await Parallel.ForEachAsync(batches, options, async (b, ct) => await _context.Table(table).SubmitTransactionAsync(b));
+        var options = new ParallelOptions() { MaxDegreeOfParallelism = 10, CancellationToken = cancellationToken };
+        await Parallel.ForEachAsync(batches, options, async (b, ct) => await _context.Table(table).SubmitTransactionAsync(b, ct));
     }
 
-    private async Task DeleteInPartition(string table, IList<T> list)
+    private async Task DeleteInPartition(string table, IList<T> list, CancellationToken cancellationToken)
     {
         var batches = new List<List<TableTransactionAction>>();
         for (int i = 0; i < list.Count; i += BATCHSIZE)
@@ -116,7 +153,7 @@ public class AzDataServiceBase<T> : IAzDataService<T> where T : class, ITableEnt
             batch.AddRange(set);
             batches.Add(batch);
         }
-        var options = new ParallelOptions() { MaxDegreeOfParallelism = 10 };
-        await Parallel.ForEachAsync(batches, options, async (b, ct) => await _context.Table(table).SubmitTransactionAsync(b));
+        var options = new ParallelOptions() { MaxDegreeOfParallelism = 10, CancellationToken = cancellationToken };
+        await Parallel.ForEachAsync(batches, options, async (b, ct) => await _context.Table(table).SubmitTransactionAsync(b, ct));
     }
 }

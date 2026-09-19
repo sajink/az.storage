@@ -18,62 +18,62 @@ public class AzDataServiceBase<T> : IAzDataService<T> where T : class, ITableEnt
     public int SplitAt { get; set; }
 
     public virtual IAsyncEnumerable<T> GetAll() => _context.GetTable<T>(Table);
-    public virtual IAsyncEnumerable<T> GetAll(CancellationToken cancellationToken) => _context.GetTable<T>(Table, cancellationToken);
+    public virtual IAsyncEnumerable<T> GetAll(CancellationToken ct) => _context.GetTable<T>(Table, ct);
     public virtual IAsyncEnumerable<T> GetSet(string id) => _context.GetPartition<T>(Table, id);
-    public virtual IAsyncEnumerable<T> GetSet(string id, CancellationToken cancellationToken) => _context.GetPartition<T>(Table, id, cancellationToken);
+    public virtual IAsyncEnumerable<T> GetSet(string id, CancellationToken ct) => _context.GetPartition<T>(Table, id, ct);
     public virtual IAsyncEnumerable<T> GetQueryResults(string query) => _context.GetQueryResults<T>(Table, query);
-    public virtual IAsyncEnumerable<T> GetQueryResults(string query, CancellationToken cancellationToken) => _context.GetQueryResults<T>(Table, query, cancellationToken);
-    public virtual Task<PagedResult<T>> GetPage(string query, int pageSize = 100, string? continuationToken = null, CancellationToken cancellationToken = default) =>
-        _context.GetQueryResultsPage<T>(Table, query, pageSize, continuationToken, cancellationToken);
+    public virtual IAsyncEnumerable<T> GetQueryResults(string query, CancellationToken ct) => _context.GetQueryResults<T>(Table, query, ct);
+    public virtual Task<PagedResult<T>> GetPage(string query, int pageSize = 100, string? continuationToken = null, CancellationToken ct = default) =>
+        _context.GetQueryResultsPage<T>(Table, query, pageSize, continuationToken, ct);
 
     public virtual Task<T?> GetOne(string id) => GetOne(id, CancellationToken.None);
 
-    public virtual Task<T?> GetOne(string id, CancellationToken cancellationToken)
+    public virtual Task<T?> GetOne(string id, CancellationToken ct)
     {
         var keys = SplitAt == 0 ? id.Split(SplitBy) : new[] { id[..SplitAt], id };
         if (keys.Length != 2) throw new ArgumentException("ID is invalid", nameof(id));
-        return _context.GetRow<T>(Table, keys[0], keys[1], cancellationToken);
+        return _context.GetRow<T>(Table, keys[0], keys[1], ct);
     }
 
     public virtual Task<bool> Create(T obj) => Create(obj, CancellationToken.None);
 
-    public virtual Task<bool> Create(T obj, CancellationToken cancellationToken)
+    public virtual Task<bool> Create(T obj, CancellationToken ct)
     {
         PrepareEntity(obj);
-        return _context.Create(Table, obj, cancellationToken);
+        return _context.Create(Table, obj, ct);
     }
 
     public virtual Task Create(IReadOnlyList<T> entities) => Create(entities, CancellationToken.None);
 
-    public virtual Task Create(IReadOnlyList<T> entities, CancellationToken cancellationToken)
+    public virtual Task Create(IReadOnlyList<T> entities, CancellationToken ct)
     {
         foreach (var entity in entities) PrepareEntity(entity);
-        return _context.Create(Table, entities, cancellationToken);
+        return _context.Create(Table, entities, ct);
     }
 
     public virtual Task<bool> Update(T obj) => Update(obj, CancellationToken.None);
-    public virtual Task<bool> Update(T obj, CancellationToken cancellationToken) => _context.Update(Table, obj, cancellationToken);
+    public virtual Task<bool> Update(T obj, CancellationToken ct) => _context.Update(Table, obj, ct);
 
     public virtual Task<bool> Upsert(T obj) => Upsert(obj, CancellationToken.None);
-    public virtual Task<bool> Upsert(T obj, CancellationToken cancellationToken)
+    public virtual Task<bool> Upsert(T obj, CancellationToken ct)
     {
         PrepareEntity(obj);
-        return _context.Upsert(Table, obj, cancellationToken);
+        return _context.Upsert(Table, obj, ct);
     }
 
-    public virtual async Task<bool> Delete(string id, CancellationToken cancellationToken)
+    public virtual async Task<bool> Delete(string id, CancellationToken ct)
     {
-        var entity = await GetOne(id, cancellationToken);
-        return entity is not null && await _context.Delete(Table, entity, cancellationToken);
+        var entity = await GetOne(id, ct);
+        return entity is not null && await _context.Delete(Table, entity, ct);
     }
 
     public virtual Task<bool> Delete(string id) => Delete(id, CancellationToken.None);
 
     public virtual Task Delete(IReadOnlyList<T> entities) => Delete(entities, CancellationToken.None);
 
-    public virtual async Task Delete(IReadOnlyList<T> entities, CancellationToken cancellationToken)
+    public virtual async Task Delete(IReadOnlyList<T> entities, CancellationToken ct)
     {
-        var table = await _context.Table(Table, cancellationToken);
+        var table = await _context.Table(Table, ct);
         var batches = entities
             .GroupBy(entity => entity.PartitionKey)
             .SelectMany(group => group.Chunk(100).Select(chunk => chunk
@@ -83,7 +83,7 @@ public class AzDataServiceBase<T> : IAzDataService<T> where T : class, ITableEnt
 
         await Parallel.ForEachAsync(
             batches,
-            new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = cancellationToken },
+            new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
             async (batch, token) => await table.SubmitTransactionAsync(batch, token));
     }
 

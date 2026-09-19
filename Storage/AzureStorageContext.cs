@@ -35,34 +35,34 @@ public partial class AzureStorageContext
         _updateReplaces = updateReplaces;
     }
 
-    public async Task<TableClient> Table(string name, CancellationToken cancellationToken = default)
+    public async Task<TableClient> Table(string name, CancellationToken ct = default)
     {
         var table = _tables.GetTableClient(name);
         if (_createMissing && _createdTables.TryAdd(name, 0))
-            await table.CreateIfNotExistsAsync(cancellationToken);
+            await table.CreateIfNotExistsAsync(cancellationToken: ct);
         return table;
     }
 
-    public async Task<BlobContainerClient> Container(string name, CancellationToken cancellationToken = default)
+    public async Task<BlobContainerClient> Container(string name, CancellationToken ct = default)
     {
         var container = _blobs.GetBlobContainerClient(name);
         if (_createMissing && _createdContainers.TryAdd(name, 0))
-            await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+            await container.CreateIfNotExistsAsync(cancellationToken: ct);
         return container;
     }
 
-    public async Task<BlobClient> Blob(string path, CancellationToken cancellationToken = default)
+    public async Task<BlobClient> Blob(string path, CancellationToken ct = default)
     {
         var split = path.IndexOf('/');
         if (split < 0) throw new ArgumentException("Path is invalid");
-        return (await Container(path.Substring(0, split), cancellationToken)).GetBlobClient(path.Substring(split + 1));
+        return (await Container(path.Substring(0, split), ct)).GetBlobClient(path.Substring(split + 1));
     }
 
-    public async Task<QueueClient> Queue(string name, CancellationToken cancellationToken = default)
+    public async Task<QueueClient> Queue(string name, CancellationToken ct = default)
     {
         var queue = _queues.GetQueueClient(name);
         if (_createMissing && _createdQueues.TryAdd(name, 0))
-            await queue.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+            await queue.CreateIfNotExistsAsync(cancellationToken: ct);
         return queue;
     }
 }

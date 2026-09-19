@@ -11,9 +11,9 @@
     {
         #region ITableEntity
         [JsonIgnore]
-        public string PartitionKey { get; set; }
+        public string PartitionKey { get; set; } = string.Empty;
         [JsonIgnore]
-        public string RowKey { get; set; }
+        public string RowKey { get; set; } = string.Empty;
         [JsonIgnore]
         public DateTimeOffset? Timestamp { get; set; }
         [JsonIgnore]

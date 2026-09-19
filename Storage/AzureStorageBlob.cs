@@ -7,7 +7,7 @@ public partial class AzureStorageContext
 {
     public async Task<bool> UploadBlob(string container, string name, byte[] content)
     {
-        var blob = Container(container).GetBlobClient(name);
+        var blob = (await Container(container)).GetBlobClient(name);
         using (var stream = new MemoryStream(content))
             await blob.UploadAsync(stream);
 
@@ -27,7 +27,7 @@ public partial class AzureStorageContext
 
     public async Task<byte[]> DownloadBlob(string path)
     {
-        var blob = Blob(path);
+        var blob = await Blob(path);
         var prop = (await blob.GetPropertiesAsync()).Value;
         var content = new byte[prop.ContentLength];
         using (var stream = new MemoryStream(content))
@@ -39,7 +39,7 @@ public partial class AzureStorageContext
         await DownloadBlob($"{container}/{blob}");
 
     public async Task<bool> DeleteBlob(string path) =>
-        (await Blob(path).DeleteIfExistsAsync()).Value;
+        (await (await Blob(path)).DeleteIfExistsAsync()).Value;
 
     public async Task<bool> DeleteBlob(string container, string blob) =>
         await DeleteBlob($"{container}/{blob}");
